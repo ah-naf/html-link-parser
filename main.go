@@ -19,9 +19,7 @@ func Parse(r io.Reader) ([]Link, error) {
 	if err != nil {
 		return nil, err
 	}
-	printNode(doc, 0)
-
-	return nil, nil
+	return getLink(doc), nil
 }
 
 func main() {
@@ -34,22 +32,47 @@ func main() {
 	}
 	defer file.Close()
 
-	_, err = Parse(file)
+	links, err := Parse(file)
 	if err != nil {
 		panic(err)
 	}
 
+	for _, val := range links {
+		fmt.Println(val)
+	}
 }
 
-func printNode(n *html.Node, depth int) {
-	for i := 0; i < depth; i++ {
-		fmt.Print(" ")
-	}
-
-	fmt.Printf("Type: %v, Data: %v, Attribute: %v\n", n.Type, n.Data, n.Attr)
-
-	// Recurse to child nodes
+func getLink(n *html.Node) []Link {
+	var links []Link
 	for c := n.FirstChild; c != nil; c = c.NextSibling {
-		printNode(c, depth+1)
+		if c.Data == "a" && n.Type == html.ElementNode {
+			href := ""
+			for _, atr := range c.Attr {
+				if atr.Key == "href" {
+					href = atr.Val
+					break
+				}
+			}
+			text := extractText(c)
+			// extractText(n)
+			if href != "" && text != "" {
+				links = append(links, Link{href, text})
+			}
+		} else {
+			links = append(links, getLink(c)...)
+		}
 	}
+	return links
+}
+
+func extractText(n *html.Node) string {
+	if n.Type == html.TextNode {
+		return n.Data
+	}
+	// fmt.Printf("Type: %v, Data: %v\n", n.Type, n.Data)
+	text := ""
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		text += extractText(c)
+	}
+	return text
 }
