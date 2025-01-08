@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"www.github.com/ah-naf/html-link-parser/htmlparser"
+	"github.com/ah-naf/html-link-parser/htmlparser"
 )
 
 func main() {

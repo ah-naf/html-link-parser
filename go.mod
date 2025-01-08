@@ -1,4 +1,4 @@
-module www.github.com/ah-naf/html-link-parser
+module github.com/ah-naf/html-link-parser
 
 go 1.22.10
 
